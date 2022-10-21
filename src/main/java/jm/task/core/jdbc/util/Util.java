@@ -10,16 +10,19 @@ public class Util {
     private static final String URL = "jdbc:mysql://localhost:3306/test";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "root";
-    public static Connection connection;
+    private volatile static Connection connection;
+    private Util() {}
 
-    public static Connection connection() {
-        try {
-            Driver driver = new com.mysql.cj.jdbc.Driver();
-            DriverManager.registerDriver(driver);
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-        } catch (SQLException e) {
-            e.getStackTrace();
-            System.out.println("Ошибка! Соединение с БД не установлено!");
+    public static synchronized Connection connection() {
+        if (connection == null) {
+            try {
+                Driver driver = new com.mysql.cj.jdbc.Driver();
+                DriverManager.registerDriver(driver);
+                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            } catch (SQLException e) {
+                e.getStackTrace();
+                System.out.println("Ошибка! Соединение с БД не установлено!");
+            }
         }
         return connection;
     }
